@@ -1,3 +1,4 @@
+import argparse
 import csv
 import socket
 import ssl
@@ -6,12 +7,23 @@ import http.client
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-TXT_URL = "https://1i.l.cd/ahhfzwl/CF/main/OTC_SCAN_YX_AS906.txt"
+DEFAULT_TXT_URL = "https://raw.wrap.eu.org/ahhfzwl/CF/main/AS906.txt"
 TEST_PATH = "/__down?bytes=9999999"
 HOST_HEADER = "1i.l.cd"
 OUTPUT_CSV = "ip.csv"
 MAX_WORKERS = 10
 TIMEOUT = 1
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="CF 优选 IP 测速")
+    parser.add_argument(
+        "--url",
+        default=DEFAULT_TXT_URL,
+        help=f"IP 列表地址（默认：{DEFAULT_TXT_URL}）",
+    )
+    return parser.parse_args()
+
 
 def fetch_ip_list(url):
     print(f"[*] 获取 IP 列表: {url}")
@@ -30,6 +42,7 @@ def fetch_ip_list(url):
 
     print(f"[+] 加载 {len(ip_ports)} 个目标")
     return ip_ports
+
 
 def test_ip(ip, port):
     start = time.time()
@@ -62,13 +75,19 @@ def test_ip(ip, port):
     except Exception as e:
         print(f"[FAIL] {ip}:{port} | {e}")
 
-    return {"ip": ip, "port": port, "latency_ms": latency_ms,
-            "speed_mbps": speed_mbps,
-            "status": "Success" if latency_ms is not None else "Failed"}
+    return {
+        "ip": ip,
+        "port": port,
+        "latency_ms": latency_ms,
+        "speed_mbps": speed_mbps,
+        "status": "Success" if latency_ms is not None else "Failed",
+    }
+
 
 def main():
+    args = parse_args()
     try:
-        ip_ports = fetch_ip_list(TXT_URL)
+        ip_ports = fetch_ip_list(args.url)
     except Exception as e:
         print(f"[-] 获取列表失败: {e}")
         return
@@ -87,11 +106,16 @@ def main():
         w = csv.writer(f)
         w.writerow(["IP", "Port", "Latency (ms)", "Speed (MB/s)", "Status"])
         for r in results:
-            w.writerow([r["ip"], r["port"],
-                        r["latency_ms"] if r["latency_ms"] is not None else "N/A",
-                        r["speed_mbps"], r["status"]])
+            w.writerow([
+                r["ip"],
+                r["port"],
+                r["latency_ms"] if r["latency_ms"] is not None else "N/A",
+                r["speed_mbps"],
+                r["status"],
+            ])
 
     print(f"\n[+] 完成，结果已保存到 {OUTPUT_CSV}")
+
 
 if __name__ == "__main__":
     main()
