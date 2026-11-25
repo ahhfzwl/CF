@@ -1,4 +1,4 @@
-curl -fsSL https://raw.wrap.eu.org/ahhfzwl/CF/main/ip.py | python3 -
+curl -fsSL https://raw.wrap.eu.org/ahhfzwl/CF/main/ip.py | python3 - --url https://raw.wrap.eu.org/ahhfzwl/CF/main/AS906_20261123.txt
 
 https://1i.l.cd/__down?bytes=9999999
 
