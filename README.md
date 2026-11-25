@@ -1,4 +1,4 @@
-https://1i.l.cd/
+curl -fsSL https://raw.wrap.eu.org/ahhfzwl/CF/main/ip.py | python3 -
 
 https://1i.l.cd/__down?bytes=9999999
 
